@@ -16,33 +16,70 @@ import {
 import { Edit, Delete } from "@mui/icons-material";
 import { createServer } from "miragejs";
 
-// Setup MirageJS server
+let employees = [
+  { id: 1, name: "John Doe", email: "john@example.com" },
+  { id: 2, name: "Jane Smith", email: "jane@example.com" },
+  { id: 3, name: "Jane sds", email: "erejane@example.com" },
+];
+
 createServer({
   routes() {
     this.namespace = "api";
 
-    this.get("/employees", () => [
-      { id: 1, name: "John Doe", email: "john@example.com" },
-      { id: 2, name: "Jane Smith", email: "jane@example.com" },
-      { id: 3, name: "Jane sds", email: "erejane@example.com" },
-    ]);
+    this.get("/employees", () => employees);
 
     this.post("/employees", (schema, request) => {
       let attrs = JSON.parse(request.requestBody);
       attrs.id = Math.floor(Math.random() * 1000);
+      employees.push(attrs);
       return { employee: attrs };
     });
 
     this.put("/employees/:id", (schema, request) => {
+      let id = request.params.id;
       let attrs = JSON.parse(request.requestBody);
-      return { employee: attrs };
+      let index = employees.findIndex((emp) => emp.id === parseInt(id));
+      if (index !== -1) {
+        employees[index] = { ...employees[index], ...attrs };
+      }
+      return { employee: employees[index] };
     });
 
     this.delete("/employees/:id", (schema, request) => {
+      let id = request.params.id;
+      employees = employees.filter((emp) => emp.id !== parseInt(id));
       return { success: true };
     });
   },
 });
+
+// Setup MirageJS server
+// createServer({
+//   routes() {
+//     this.namespace = "api";
+
+//     this.get("/employees", () => [
+//       { id: 1, name: "John Doe", email: "john@example.com" },
+//       { id: 2, name: "Jane Smith", email: "jane@example.com" },
+//       { id: 3, name: "Jane sds", email: "erejane@example.com" },
+//     ]);
+
+//     this.post("/employees", (schema, request) => {
+//       let attrs = JSON.parse(request.requestBody);
+//       attrs.id = Math.floor(Math.random() * 1000);
+//       return { employee: attrs };
+//     });
+
+//     this.put("/employees/:id", (schema, request) => {
+//       let attrs = JSON.parse(request.requestBody);
+//       return { employee: attrs };
+//     });
+
+//     this.delete("/employees/:id", (schema, request) => {
+//       return { success: true };
+//     });
+//   },
+// });
 
 function EmployeeList() {
   const [employees, setEmployees] = useState([]);
@@ -72,17 +109,25 @@ function EmployeeList() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    const employee = Object.fromEntries(formData.entries());
+    const employeeData = Object.fromEntries(formData.entries());
 
     if (currentEmployee) {
+      // Update operation
       await fetch(`/api/employees/${currentEmployee.id}`, {
         method: "PUT",
-        body: JSON.stringify(employee),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(employeeData),
       });
     } else {
+      // Create operation
       await fetch("/api/employees", {
         method: "POST",
-        body: JSON.stringify(employee),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(employeeData),
       });
     }
 
@@ -96,7 +141,7 @@ function EmployeeList() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="">
       <div
         style={{
           display: "flex",
@@ -127,6 +172,7 @@ function EmployeeList() {
           >
             <Avatar
               alt={employee.name}
+              src={"https://picsum.photos/200/300"}
               className="p-3"
               style={{ margin: "0 10px" }}
             />
