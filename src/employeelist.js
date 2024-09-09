@@ -97,7 +97,14 @@ function EmployeeList() {
 
   return (
     <div className="container mx-auto p-4">
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          background: "#ededed",
+          padding: "0 10px",
+        }}
+      >
         <h1 className="text-2xl font-bold mb-4">Employee App</h1>
         <div style={{ display: "flex", alignItems: "center" }}>
           <Button
@@ -113,8 +120,16 @@ function EmployeeList() {
 
       <List>
         {employees.map((employee) => (
-          <ListItem key={employee.id} className="bg-gray-100 mb-2 rounded">
-            <Avatar alt={employee.name} className="p-3" />
+          <ListItem
+            key={employee.id}
+            className="bg-gray-100 mb-2 rounded"
+            style={{ borderBottom: "1px solid #efefef" }}
+          >
+            <Avatar
+              alt={employee.name}
+              className="p-3"
+              style={{ margin: "0 10px" }}
+            />
             <ListItemText primary={employee.name} secondary={employee.email} />
             <ListItemSecondaryAction>
               <IconButton edge="end" onClick={() => handleOpen(employee)}>
